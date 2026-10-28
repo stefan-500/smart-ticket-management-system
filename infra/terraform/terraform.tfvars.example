@@ -1,4 +1,5 @@
 region        = "us-east-1"
 name          = "smart-ticket"
-audience_cidr = "203.0.113.10/32"
-# certificate_arn = "arn:aws:acm:us-east-1:123456789012:certificate/..."
+audience_cidr = "203.0.113.10/32"   # Replace with actual public IPv4/32.
+key_name      = "smart-ticket-demo" # Create this EC2 key pair.
+instance_type = "t3.medium"

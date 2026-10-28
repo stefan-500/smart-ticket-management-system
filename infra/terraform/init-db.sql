@@ -1,0 +1,6 @@
+CREATE TABLE IF NOT EXISTS assignment_lock (
+    id BIGINT NOT NULL PRIMARY KEY
+) ENGINE=InnoDB;
+
+INSERT INTO assignment_lock (id) VALUES (1)
+ON DUPLICATE KEY UPDATE id = 1;
