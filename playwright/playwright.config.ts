@@ -1,89 +1,111 @@
 import { defineConfig, devices } from '@playwright/test';
- 
+
 const isCI = !!process.env.CI;
- 
+
 export default defineConfig({
- 
-    // Location of UI test files
-    testDir: './tests',
- 
-    // Match only Playwright spec files
-    testMatch: '**/*.spec.ts',
- 
-    // Run independent tests in parallel
-    fullyParallel: true,
- 
-    // Prevent accidental test.only in CI
-    forbidOnly: isCI,
- 
-    // Retry failed tests only in CI
-    retries: isCI ? 2 : 0,
- 
-    // Control parallel execution
-    workers: isCI ? 2 : undefined,
- 
-    // Maximum duration for one test
-    timeout: 30_000,
- 
-    // Assertion timeout
-    expect: {
-        timeout: 5_000,
+  testDir: './tests',
+
+  testMatch: '**/*.spec.ts',
+
+  fullyParallel: true,
+
+  forbidOnly: isCI,
+
+  retries: isCI ? 2 : 0,
+
+  workers: isCI ? 2 : undefined,
+
+  timeout: 30_000,
+
+  expect: {
+    timeout: 5_000
+  },
+
+  reporter: [
+    ['list'],
+    [
+      'html',
+      {
+        outputFolder: 'playwright-report',
+        open: 'never'
+      }
+    ]
+  ],
+
+  outputDir: 'test-results',
+
+  use: {
+    baseURL: 'http://localhost:8080'
+  },
+
+  projects: [
+    // API
+    {
+      name: 'API',
+
+      testMatch: '**/api/**/*.spec.ts',
+
+      use: {
+        baseURL: 'http://localhost:8080'
+      }
     },
- 
-    // Reports
-    reporter: [
-        ['list'],
-        [
-            'html',
-            {
-                outputFolder: 'playwright-report',
-                open: 'never',
-            },
-        ],
-    ],
- 
-    // Test artifacts
-    outputDir: 'test-results',
- 
-    // Common settings for all tests
-    use: {
-        // Automation Exercise base URL
-        baseURL: 'http://localhost:8080',
- 
-        // Microsoft Edge only
+
+    // UI
+    {
+      name: 'UI',
+
+      testMatch: '**/ui/**/*.spec.ts',
+
+      use: {
         ...devices['Desktop Edge'],
         channel: 'msedge',
- 
-        // Browser execution mode
+        baseURL: process.env.PLAYWRIGHT_UI_BASE_URL || 'http://localhost:4200',
+
         headless: isCI,
- 
-        // Timeouts for browser actions
+
         actionTimeout: 10_000,
         navigationTimeout: 20_000,
- 
-        // Debugging artifacts
+
         screenshot: 'only-on-failure',
         video: 'retain-on-failure',
         trace: 'on-first-retry',
- 
-        // Viewport
+
         viewport: {
-            width: 1440,
-            height: 900,
+          width: 1440,
+          height: 900
         },
- 
-        // Fresh context for each test
-        ignoreHTTPSErrors: false,
+
+        ignoreHTTPSErrors: false
+      }
     },
- 
-    // A single browser project: Edge
-    projects: [
-        {
-            name: 'Microsoft Edge',
-            use: {
-                ...devices['Desktop Edge'],
-                channel: 'msedge',
-            },
+
+    // E2E
+    {
+      name: 'E2E',
+
+      testMatch: '**/e2e/**/*.spec.ts',
+
+      use: {
+        ...devices['Desktop Edge'],
+        channel: 'msedge',
+        baseURL: process.env.PLAYWRIGHT_UI_BASE_URL || 'http://localhost:4200',
+
+        headless: isCI,
+
+        actionTimeout: 10_000,
+        navigationTimeout: 20_000,
+
+        screenshot: 'only-on-failure',
+        video: 'retain-on-failure',
+        trace: 'on-first-retry',
+
+        viewport: {
+          width: 1440,
+          height: 900
         },
-    ],
+
+        ignoreHTTPSErrors: false
+      }
+    }
+  ]
 });

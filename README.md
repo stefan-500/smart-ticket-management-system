@@ -586,3 +586,54 @@ The proposed `eventType` field is a string with the following values:
 Events need enough information to identify the ticket, when the event occurred, who or what performed it, and the relevant change. System-generated actions must be distinguishable from user actions.
 
 It must be decided whether resolution and closure produce both a `STATUS_CHANGED` event and a specialized event, or only the specialized event.
+
+## Playwright Tests
+
+The `playwright/` folder contains three projects:
+
+| Project | Folder              | Purpose                                                    |
+| ------- | ------------------- | ---------------------------------------------------------- |
+| `API`   | `tests/api`         | Backend endpoint tests (default `http://localhost:8080`).  |
+| `UI`    | `tests/ui`          | Browser tests: login, tickets, ticket details, dashboard.  |
+| `E2E`   | `tests/e2e`         | Full user and support-agent flows in the browser.          |
+
+### Prerequisites
+
+Start the backend (port 8080) and the Angular development server (port 4200)
+before running browser tests. The Angular server proxies `/api` requests to the
+backend. Tests sign in with the seeded accounts defined in
+`playwright/test-data/user.data.ts` (see [Development seeding](#development-seeding)).
+
+### Running
+
+```powershell
+cd playwright
+npx playwright test --project=UI
+npx playwright test --project=E2E
+npx playwright show-report
+```
+
+### E2E flows
+
+- **User:** registers a new account, logs in, creates a ticket via the
+  *Create Ticket* tab, finds it in *My Tickets* and checks the assigned agent.
+- **Support agent:** a new ticket is created through the API, the assigned
+  agent logs in, opens it from the dashboard Priority Queue, posts two comments
+  and resolves it. The test is skipped if the ticket is not among the top 5
+  queue entries.
+
+### Test data
+
+Tests create uniquely named users, tickets and comments in the configured
+backend; these records are not deleted automatically. Do not run them against
+production data.
+
+## Decisions to Confirm
+
+These items clarify incomplete requirements; they do not introduce additional committed functionality.
+
+1. **Automatic assignment:** Active-ticket definition, availability criteria, tie-breaking, no-agent handling, and concurrency behavior.
+2. **Reassignment:** Manual replacement selection versus automatic selection, and whether support levels exist in the baseline.
+3. **Ticket forms:** Required fields and validation for Incident and Software Request.
+4. **Authentication:** Email verification behavior, password-reset flow, JWT expiry, and logout/revocation semantics.
+5. **History:** How specialized status events relate to `STATUS_CHANGED`.
